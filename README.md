@@ -4,7 +4,15 @@
 
 ---
 
-## 📸 五站预览
+## � 在线试玩（免安装）
+
+👉 **https://xinxinxiangrong666666.github.io/metro-brigade-breakout/**
+
+手机横屏打开即玩，不需要下载、不需要装 Python。想在本地跑源码见下方「怎么玩」。
+
+---
+
+## �📸 五站预览
 
 <p align="center">
   <img src="assets/stage-gaoxin.png" width="32%" alt="第 1 关 高新园" />
