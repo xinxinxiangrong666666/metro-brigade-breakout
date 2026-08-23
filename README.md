@@ -1,6 +1,7 @@
 # 地铁旅团弹射：城市突围
 
 手机横屏 H5 弹射 Roguelike。深圳地铁五站城市突围 —— 弹射清障 + 技能成长 + 景点明信片收集。
+![Uploading portrait-sheet.png…]()
 
 ---
 
