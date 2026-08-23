@@ -1,0 +1,9 @@
+{
+  "name": "地铁旅团弹射：城市突围",
+  "short_name": "地铁旅团",
+  "start_url": "./",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#07142e",
+  "theme_color": "#07142e"
+}

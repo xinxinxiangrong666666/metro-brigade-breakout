@@ -1,0 +1,12 @@
+# 系统文件
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# 编辑器
+.vscode/
+.idea/
+
+# Python 启动器缓存
+__pycache__/
+*.py[cod]

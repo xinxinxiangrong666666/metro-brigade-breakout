@@ -1,0 +1,577 @@
+:root {
+  --ink: #07142e;
+  --paper: #fff7e8;
+  --paper-raised: #fffaf1;
+  --cobalt: #123bee;
+  --cobalt-dark: #0926a8;
+  --coral: #ff6b57;
+  --mint: #a8e6cf;
+  --gold: #ffd166;
+  --muted: #627087;
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--ink);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+* { box-sizing: border-box; }
+html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
+button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+
+#app {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  min-width: 320px;
+  background: #050c1c;
+}
+
+#game-shell {
+  visibility: hidden;
+  position: relative;
+  width: min(100vw, 177.777vh);
+  height: min(100vh, 56.25vw);
+  overflow: hidden;
+  border: 3px solid var(--ink);
+  background: #69b7d1;
+  box-shadow: 0 0 0 3px #19294a;
+  isolation: isolate;
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+  image-rendering: pixelated;
+}
+
+.hud {
+  position: absolute;
+  z-index: 5;
+  top: max(8px, env(safe-area-inset-top));
+  left: max(8px, env(safe-area-inset-left));
+  right: max(8px, env(safe-area-inset-right));
+  display: grid;
+  grid-template-columns: 1.4fr .7fr 1.2fr .55fr 48px;
+  gap: 8px;
+  align-items: stretch;
+  pointer-events: none;
+}
+
+.hud-block, .square-btn {
+  min-height: 48px;
+  border: 3px solid var(--ink);
+  background-color: rgba(255, 247, 232, .97);
+  background-image:
+    linear-gradient(90deg, rgba(7,20,46,.05) 1px, transparent 1px),
+    linear-gradient(rgba(7,20,46,.035) 1px, transparent 1px);
+  background-size: 8px 8px;
+  box-shadow: 3px 4px 0 var(--ink), inset 0 0 0 2px rgba(255,255,255,.58);
+}
+
+.hud-block { display: flex; align-items: center; justify-content: center; padding: 6px 12px; }
+.brand { justify-content: flex-start; gap: 8px; font-size: clamp(14px, 1.7vw, 24px); font-weight: 950; }
+.brand-mark { display: grid; place-items: center; width: 30px; height: 30px; background: var(--cobalt); color: white; border: 2px solid var(--ink); }
+.hearts { color: #e73535; letter-spacing: 4px; font-size: clamp(14px, 1.8vw, 25px); text-shadow: 1px 2px 0 var(--ink); }
+.stage { flex-direction: column; gap: 1px; font-weight: 950; font-size: clamp(12px, 1.45vw, 21px); }
+.stage small { color: var(--coral); font: 800 clamp(8px, .75vw, 11px)/1 "Courier New", monospace; }
+.compass { gap: 6px; font: 950 clamp(12px, 1.4vw, 20px)/1 "Courier New", monospace; color: var(--cobalt); }
+.square-btn { pointer-events: auto; min-width: 48px; padding: 0; background: var(--cobalt); color: white; font-size: 22px; font-weight: 950; cursor: pointer; }
+.square-btn:active { transform: translate(2px, 3px); box-shadow: none; }
+
+.combo {
+  position: absolute;
+  z-index: 4;
+  right: 3.5%;
+  top: 18%;
+  display: none;
+  padding: 7px 11px;
+  transform: rotate(-3deg);
+  background: var(--ink);
+  color: white;
+  border: 2px solid var(--paper);
+  box-shadow: 3px 4px 0 var(--coral);
+  font: 950 clamp(12px, 1.6vw, 22px)/1 "Courier New", monospace;
+}
+.combo.show { display: block; animation: pop .14s steps(2); }
+.combo b { color: var(--gold); font-size: 1.3em; }
+.combo.hot { padding: 10px 15px; background: var(--coral); box-shadow: 4px 5px 0 var(--ink); }
+.combo.fire { transform: rotate(3deg) scale(1.12); background: var(--gold); color: var(--ink); border-color: var(--ink); }
+.combo.fire b { color: var(--cobalt); }
+
+.toast {
+  position: absolute;
+  z-index: 7;
+  left: 50%;
+  top: 15%;
+  opacity: 0;
+  transform: translate(-50%, -12px);
+  padding: 9px 14px;
+  border: 2px solid var(--ink);
+  background: var(--mint);
+  box-shadow: 2px 3px 0 var(--ink);
+  font-weight: 900;
+  transition: .18s ease;
+  pointer-events: none;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+.party {
+  position: absolute;
+  z-index: 4;
+  bottom: max(9px, env(safe-area-inset-bottom));
+  left: auto;
+  right: max(10px, env(safe-area-inset-right));
+  display: flex;
+  gap: 7px;
+  transform: none;
+  pointer-events: none;
+}
+
+.traveler {
+  display: flex;
+  align-items: center;
+  width: clamp(120px, 15vw, 190px);
+  height: clamp(50px, 7.2vw, 86px);
+  padding: 5px 8px 5px 4px;
+  gap: 7px;
+  border: 2px solid var(--ink);
+  background: rgba(255, 250, 241, .93);
+  box-shadow: 2px 3px 0 var(--ink);
+  opacity: .72;
+  transform: translateY(8px);
+  transition: 140ms steps(2);
+}
+.traveler.active { opacity: 1; transform: translateY(0); border-color: var(--cobalt); box-shadow: 3px 4px 0 var(--ink); }
+.traveler > div:last-child { min-width: 0; }
+.traveler b { display: block; font-size: clamp(11px, 1.2vw, 17px); font-weight: 950; }
+.traveler small { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--muted); font: 800 clamp(7px, .68vw, 10px)/1.2 "Courier New", monospace; }
+.portrait {
+  flex: 0 0 auto;
+  width: clamp(38px, 5vw, 62px);
+  height: calc(clamp(38px, 5vw, 62px) * 1.06);
+  background-image: url("assets/traveler-sprites.png");
+  background-size: 400% 300%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  mix-blend-mode: multiply;
+}
+.portrait-blue { background-position: 0 0; }
+.portrait-coral { background-position: 0 50%; }
+.portrait-mint { background-position: 0 100%; }
+
+.skill-rack {
+  position: absolute;
+  z-index: 6;
+  left: max(10px, env(safe-area-inset-left));
+  bottom: max(10px, env(safe-area-inset-bottom));
+  width: clamp(390px, 35vw, 470px);
+  padding: 8px;
+  border: 3px solid var(--ink);
+  background: rgba(255, 250, 241, .95);
+  box-shadow: 3px 4px 0 var(--ink);
+  pointer-events: auto;
+}
+.skill-rack-title { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+.skill-rack-title span { font-size: clamp(12px, 1vw, 15px); font-weight: 950; }
+.skill-rack-title small { color: var(--muted); font: 800 clamp(8px, .68vw, 10px)/1 "Courier New", monospace; }
+.skill-slots { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; }
+.skill-rack-toggle {
+  margin-left: auto;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2px solid var(--ink);
+  background: var(--paper-raised);
+  color: var(--ink);
+  font: 950 12px/1 "Courier New", monospace;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.skill-rack-toggle:active { transform: translate(2px, 2px); box-shadow: none; }
+.skill-rack.collapsed { width: auto; }
+.skill-rack.collapsed .skill-slots,
+.skill-rack.collapsed .skill-detail { display: none !important; }
+.skill-rack.collapsed .skill-rack-title { margin-bottom: 0; }
+.skill-rack.collapsed .skill-rack-title small { display: none; }
+.skill-rack.collapsed .skill-rack-toggle { transform: rotate(180deg); }
+.skill-rack.collapsed .skill-rack-toggle:active { transform: rotate(180deg) translate(-2px, -2px); box-shadow: none; }
+.skill-slot {
+  position: relative;
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: center;
+  min-height: 60px;
+  padding: 6px 7px;
+  gap: 7px;
+  min-width: 0;
+  border: 2px solid var(--ink);
+  background: rgba(213,216,222,.94);
+  color: var(--muted);
+  text-align: left;
+  cursor: pointer;
+}
+.skill-slot.learned { background: #d9e1ff; color: var(--cobalt); box-shadow: 2px 2px 0 var(--ink); }
+.skill-slot:hover { transform: translateY(-1px); background: var(--paper-raised); }
+.skill-slot:active { transform: translate(2px, 2px); box-shadow: none; }
+.skill-slot:focus-visible { outline: 4px solid var(--gold); outline-offset: 2px; }
+.skill-slot[aria-expanded="true"] { background: var(--gold); color: var(--ink); box-shadow: 2px 2px 0 var(--ink); }
+.skill-slot-icon { display: grid; place-items: center; width: 40px; height: 40px; border: 2px solid currentColor; background: rgba(255,255,255,.72); }
+.skill-slot svg { width: 29px; height: 29px; overflow: visible; }
+.skill-copy { min-width: 0; line-height: 1.05; }
+.skill-copy b { display: block; overflow: hidden; padding-right: 34px; color: var(--ink); font-size: clamp(11px, .9vw, 14px); font-weight: 950; white-space: nowrap; text-overflow: ellipsis; }
+.skill-copy small { display: block; margin-top: 5px; overflow: hidden; color: currentColor; font: 950 clamp(9px, .75vw, 11px)/1 "Courier New", monospace; white-space: nowrap; text-overflow: ellipsis; }
+.skill-power.learned { background: #ffd7cf; color: #d7382d; }
+.skill-volley.learned { background: #d9e1ff; color: var(--cobalt); }
+.skill-crit.learned { background: #fff0bc; color: #b56d00; }
+.skill-split.learned { background: #dcfaee; color: #08785f; }
+.skill-pierce.learned { background: #e7ddff; color: #6635bd; }
+.skill-heal.learned { background: #dcfaee; color: #138552; }
+.skill-slot .skill-state {
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  min-width: 29px;
+  padding: 3px 4px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  background: rgba(255,255,255,.78);
+  color: currentColor;
+  font: 950 8px/1 "Courier New", monospace;
+}
+
+.skill-detail {
+  position: absolute;
+  left: -3px;
+  bottom: calc(100% + 10px);
+  width: calc(100% + 6px);
+  min-height: 176px;
+  display: grid;
+  grid-template-columns: 66px minmax(0, 1fr);
+  gap: 12px;
+  padding: 14px;
+  border: 3px solid var(--ink);
+  background-color: var(--paper);
+  background-image: linear-gradient(90deg, rgba(7,20,46,.04) 1px, transparent 1px), linear-gradient(rgba(7,20,46,.035) 1px, transparent 1px);
+  background-size: 9px 9px;
+  box-shadow: 5px 6px 0 var(--ink);
+}
+.skill-detail[hidden] { display: none; }
+.skill-detail-close { position: absolute; top: 8px; right: 8px; width: 36px; height: 36px; padding: 0; border: 2px solid var(--ink); background: var(--coral); color: white; font-size: 25px; font-weight: 950; line-height: 1; cursor: pointer; }
+.skill-detail-icon { display: grid; place-items: center; width: 64px; height: 64px; border: 3px solid var(--ink); background: var(--cobalt); color: white; box-shadow: 2px 3px 0 var(--ink); }
+.skill-detail-icon svg { width: 42px; height: 42px; }
+.skill-detail-copy { min-width: 0; padding-right: 32px; }
+.skill-detail-type { display: block; color: var(--coral); font: 950 10px/1 "Courier New", monospace; letter-spacing: .05em; }
+.skill-detail h3 { margin: 4px 0 6px; font-size: 19px; line-height: 1; }
+.skill-detail-effect { margin: 0 0 6px; color: var(--cobalt); font: 950 clamp(20px, 1.8vw, 25px)/1.05 "Courier New", monospace; }
+.skill-detail-rule { margin: 0; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.35; }
+.skill-detail-change, .skill-value-change { display: grid; grid-template-columns: minmax(0, 1fr) 22px minmax(0, 1fr); align-items: center; gap: 5px; margin-top: 10px; }
+.skill-detail-change span, .skill-value-change span { padding: 7px 5px; border: 2px solid var(--ink); background: white; text-align: center; font: 950 clamp(9px, .8vw, 11px)/1.15 "Courier New", monospace; }
+.skill-detail-change span:last-child, .skill-value-change span:last-child { background: #d9e1ff; color: var(--cobalt); }
+.skill-detail-change b, .skill-value-change b { margin: 0; text-align: center; color: var(--coral); font-size: 18px; }
+
+.modal {
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  display: none;
+  place-items: center;
+  padding: 5%;
+  background: rgba(7, 20, 46, .48);
+  backdrop-filter: blur(2px);
+}
+.modal.open { display: grid; visibility: visible; animation: fadeIn .16s ease-out; }
+
+.paper-panel {
+  position: relative;
+  width: min(640px, 84%);
+  padding: clamp(18px, 3vw, 36px);
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 5px 6px 0 var(--ink);
+  text-align: center;
+}
+.intro-panel { width: min(570px, 76%); }
+.paper-panel h1 { margin: 7px 0 12px; font-size: clamp(30px, 5vw, 66px); font-weight: 950; line-height: .9; letter-spacing: -.05em; }
+.paper-panel h1 span { color: var(--cobalt); }
+.paper-panel h2 { margin: 5px 0 4px; font-size: clamp(23px, 3.2vw, 42px); font-weight: 950; }
+.paper-panel p { max-width: 510px; margin: 10px auto 16px; font-size: clamp(11px, 1.15vw, 16px); font-weight: 700; line-height: 1.55; }
+.paper-panel > small { display: block; margin-top: 10px; color: var(--muted); font-size: 10px; font-weight: 700; }
+.mono { margin: 0 !important; color: var(--coral); font: 950 clamp(9px, .9vw, 12px)/1.2 "Courier New", monospace !important; letter-spacing: .08em; }
+.route-line { display: flex; justify-content: center; gap: 32px; margin: -5px 0 7px; border-top: 3px solid var(--ink); }
+.route-line i { width: 13px; height: 13px; margin-top: -8px; border: 2px solid var(--ink); background: var(--paper); }
+.route-line i:first-child, .route-line i:last-child { background: var(--coral); }
+
+.primary-btn, .secondary-btn {
+  min-width: 190px;
+  min-height: 48px;
+  padding: 10px 19px;
+  border: 3px solid var(--ink);
+  font-weight: 950;
+  cursor: pointer;
+}
+.primary-btn { background: var(--cobalt); color: white; box-shadow: 3px 4px 0 var(--ink); }
+.secondary-btn { display: block; margin: 12px auto 0; background: var(--paper-raised); box-shadow: 2px 3px 0 var(--ink); }
+.primary-btn:active, .secondary-btn:active, .upgrade-card:active { transform: translate(3px, 4px); box-shadow: none; }
+.primary-btn:focus-visible, .secondary-btn:focus-visible, .square-btn:focus-visible, .upgrade-card:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
+
+.upgrade-panel { width: min(900px, 94%); }
+.upgrade-sub { margin: 2px auto 12px !important; color: var(--muted); }
+.upgrade-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.upgrade-card {
+  min-height: 150px;
+  padding: clamp(10px, 1.7vw, 20px);
+  border: 3px solid var(--ink);
+  background: var(--paper-raised);
+  box-shadow: 3px 4px 0 var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.upgrade-card:nth-child(2) { background: #dcfaee; }
+.upgrade-card:nth-child(3) { background: #ffd7cf; }
+.upgrade-icon { display: grid; place-items: center; width: 42px; height: 42px; margin-bottom: 9px; border: 2px solid var(--ink); background: var(--cobalt); color: white; font-size: 22px; }
+.upgrade-card b { display: block; margin-bottom: 5px; font-size: clamp(13px, 1.5vw, 19px); font-weight: 950; }
+.upgrade-card small { color: var(--muted); font-size: clamp(9px, .85vw, 12px); font-weight: 750; line-height: 1.45; }
+.compact-panel { width: min(410px, 74%); }
+
+.departure-panel {
+  position: relative;
+  width: min(880px, 88%);
+  overflow: hidden;
+  border: 3px solid var(--ink);
+  background: var(--paper);
+  box-shadow: 6px 7px 0 var(--ink);
+}
+.departure-scene {
+  position: relative;
+  height: clamp(190px, 30vh, 250px);
+  overflow: hidden;
+  border-bottom: 3px solid var(--ink);
+  background: url("assets/portrait-sheet.png") center 63% / cover no-repeat;
+}
+.departure-scene::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, rgba(7,20,46,.12));
+  pointer-events: none;
+}
+.runway-lights {
+  position: absolute;
+  z-index: 1;
+  left: 8%;
+  right: 8%;
+  bottom: 20px;
+  height: 4px;
+  border-top: 3px dashed rgba(255,247,232,.95);
+  filter: drop-shadow(0 0 4px var(--gold));
+}
+.departure-plane {
+  position: absolute;
+  z-index: 2;
+  left: -43%;
+  bottom: -43%;
+  width: 72%;
+  mix-blend-mode: multiply;
+  filter: contrast(330%) brightness(122%) saturate(115%);
+  clip-path: polygon(5% 60%, 13% 52%, 12% 34%, 31% 41%, 20% 30%, 41% 44%, 78% 33%, 93% 38%, 87% 52%, 65% 59%, 49% 67%, 20% 66%);
+  transform: translate3d(0, 0, 0) rotate(-1deg);
+  transform-origin: 60% 50%;
+}
+.departure-scene.flying .departure-plane { animation: planeTakeoff 2.1s cubic-bezier(.2,.76,.34,1) forwards; }
+.departure-stamp {
+  position: absolute;
+  z-index: 3;
+  top: 14px;
+  right: 14px;
+  padding: 7px 9px;
+  transform: rotate(2deg);
+  border: 2px solid var(--ink);
+  background: var(--gold);
+  box-shadow: 2px 3px 0 var(--ink);
+  font: 950 10px/1 "Courier New", monospace;
+}
+.departure-copy { padding: 18px 24px 22px; text-align: center; }
+.departure-copy h2 { margin: 4px 0 6px; font-size: clamp(25px, 3.3vw, 42px); font-weight: 950; letter-spacing: -.035em; }
+.departure-copy blockquote { max-width: 680px; margin: 0 auto 15px; color: var(--muted); font-size: clamp(12px, 1.25vw, 16px); font-weight: 800; line-height: 1.55; }
+
+.ending-panel { width: min(720px, 88%); }
+.ending-panel h2 { max-width: 620px; margin-inline: auto; font-size: clamp(28px, 4vw, 52px); line-height: 1.08; }
+.ending-soul { margin: 12px auto 9px !important; color: var(--cobalt); font-size: clamp(17px, 2vw, 25px) !important; font-weight: 950 !important; line-height: 1.35 !important; }
+.ending-note { margin: 10px auto 18px !important; padding-top: 12px; border-top: 2px solid var(--ink); color: var(--muted); font-size: clamp(11px, 1.05vw, 14px) !important; font-weight: 750 !important; }
+
+.skill-panel { width: min(980px, 96%); padding: clamp(15px, 2.2vw, 28px); }
+.skill-learn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 14px; }
+.skill-learn-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 270px;
+  padding: 16px;
+  border: 3px solid var(--ink);
+  background: var(--paper-raised);
+  box-shadow: 3px 4px 0 var(--ink);
+  text-align: left;
+  cursor: pointer;
+}
+.skill-card-power { background: #fff0ed; }
+.skill-card-volley { background: #edf1ff; }
+.skill-card-crit { background: #fff8db; }
+.skill-card-split, .skill-card-heal { background: #eafff7; }
+.skill-card-pierce { background: #f2edff; }
+.skill-learn-card:active { transform: translate(3px, 4px); box-shadow: none; }
+.skill-learn-card:focus-visible { outline: 4px solid var(--gold); outline-offset: 3px; }
+.skill-learn-icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 54px;
+  height: 54px;
+  border: 3px solid var(--ink);
+  background: var(--cobalt);
+  color: white;
+  box-shadow: 2px 2px 0 var(--ink);
+}
+.skill-learn-icon svg { width: 72%; height: 72%; }
+.skill-card-top { display: flex; align-items: center; gap: 10px; padding-right: 34px; }
+.skill-card-top > span:last-child { min-width: 0; }
+.skill-card-type { display: block; margin-bottom: 4px; color: var(--coral); font: 950 9px/1 "Courier New", monospace; }
+.skill-card-top b { display: block; margin: 0; font-size: clamp(15px, 1.45vw, 20px); font-weight: 950; }
+.skill-main-effect { display: block; margin: 14px 0 8px; color: var(--cobalt); font: 950 clamp(20px, 2vw, 28px)/1.05 "Courier New", monospace; }
+.skill-learn-card > small { display: block; min-height: 36px; color: var(--muted); font-size: clamp(10px, .9vw, 13px); font-weight: 800; line-height: 1.4; }
+.skill-learn-card em { position: absolute; top: 12px; right: 12px; font: 950 10px/1 "Courier New", monospace; color: var(--coral); font-style: normal; }
+.skill-learn-card .skill-value-change { margin-top: auto; }
+.skill-select-label { display: block; margin: 8px -16px -16px; padding: 8px; border-top: 2px solid var(--ink); background: var(--cobalt); color: white; text-align: center; font-size: 12px; font-weight: 950; }
+
+#rotatePrompt { display: none; position: fixed; z-index: 100; inset: 0; place-items: center; align-content: center; padding: 24px; background: var(--paper); text-align: center; }
+#rotatePrompt h2 { margin: 14px 0 4px; font-size: 28px; font-weight: 950; }
+#rotatePrompt p { margin: 0; color: var(--muted); font-weight: 700; }
+.rotate-phone { display: grid; place-items: center; width: 126px; height: 72px; border: 4px solid var(--ink); background: var(--cobalt); color: white; box-shadow: 5px 6px 0 var(--ink); font-size: 42px; animation: tilt 1.5s steps(3) infinite; }
+
+@keyframes pop { from { transform: scale(.8) rotate(-3deg); } to { transform: scale(1) rotate(-3deg); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes tilt { 50% { transform: rotate(8deg); } }
+@keyframes planeTakeoff {
+  0% { left: -43%; bottom: -43%; transform: rotate(-1deg) scale(.78); }
+  38% { left: 10%; bottom: -25%; transform: rotate(-3deg) scale(.86); }
+  100% { left: 72%; bottom: 18%; transform: rotate(-9deg) scale(.52); }
+}
+
+@media (orientation: portrait) and (max-width: 900px) {
+  #rotatePrompt { display: grid; }
+  #game-shell { visibility: hidden; }
+}
+
+@media (max-height: 500px) {
+  .hud { top: 5px; gap: 5px; }
+  .hud-block, .square-btn { min-height: 39px; }
+  .party { left: auto; right: 5px; bottom: 5px; transform: none; }
+  .paper-panel { padding: 14px 20px; }
+  .intro-panel { padding: 9px 18px; }
+  .paper-panel h1 { margin: 3px 0 6px; }
+  .paper-panel p { margin: 6px auto 10px; }
+  .intro-panel > p:not(.mono) { margin: 4px auto 7px; font-size: 10px; line-height: 1.35; }
+  .intro-panel .primary-btn { min-height: 40px; padding: 6px 16px; }
+  .intro-panel > small { margin-top: 5px; }
+  .route-line { margin-top: 0; }
+  .upgrade-card { min-height: 105px; padding: 9px; }
+  .upgrade-icon { width: 32px; height: 32px; font-size: 17px; margin-bottom: 4px; }
+  .departure-panel { width: min(760px, 92%); display: grid; grid-template-columns: 46% 54%; }
+  .departure-scene { height: auto; min-height: 245px; border-bottom: 0; border-right: 3px solid var(--ink); }
+  .departure-stamp { top: 8px; right: 8px; padding: 5px 6px; font-size: 7px; }
+  .departure-plane { width: 102%; bottom: -18%; }
+  .departure-copy { display: flex; flex-direction: column; justify-content: center; padding: 12px 15px; }
+  .departure-copy h2 { margin: 3px 0 4px; font-size: 23px; }
+  .departure-copy blockquote { margin-bottom: 9px; font-size: 10px; line-height: 1.35; }
+  .departure-copy .primary-btn { min-height: 40px; padding: 6px 11px; font-size: 11px; }
+  .ending-panel { width: min(720px, 92%); padding: 13px 22px; }
+  .ending-panel h2 { margin: 3px auto; font-size: 25px; }
+  .ending-soul { margin: 6px auto 4px !important; font-size: 16px !important; }
+  .ending-note { margin: 4px auto 9px !important; padding-top: 6px; font-size: 9px !important; line-height: 1.35 !important; }
+  .ending-panel #endSummary { margin: 3px auto !important; font-size: 9px; }
+  .ending-panel .primary-btn { min-height: 40px; padding: 6px 14px; }
+  .skill-rack { width: 380px; padding: 5px; bottom: 5px; }
+  .skill-rack-title { margin-bottom: 4px; }
+  .skill-rack-title span { font-size: 10px; }
+  .skill-rack-title small { font-size: 7px; }
+  .skill-slot { min-height: 43px; grid-template-columns: 29px minmax(0, 1fr); padding: 3px 4px; gap: 4px; }
+  .skill-slot-icon { width: 29px; height: 29px; }
+  .skill-slot svg { width: 21px; height: 21px; }
+  .skill-copy b { padding-right: 27px; font-size: 9px; }
+  .skill-copy small { margin-top: 3px; font-size: 7.5px; }
+  .skill-slot .skill-state { top: 3px; right: 3px; min-width: 24px; padding: 2px 3px; font-size: 6px; }
+  .skill-detail { bottom: calc(100% + 6px); min-height: 137px; grid-template-columns: 48px minmax(0, 1fr); gap: 8px; padding: 9px; }
+  .skill-detail-icon { width: 46px; height: 46px; }
+  .skill-detail-icon svg { width: 31px; height: 31px; }
+  .skill-detail-close { top: 5px; right: 5px; width: 30px; height: 30px; font-size: 20px; }
+  .skill-detail-copy { padding-right: 25px; }
+  .skill-detail h3 { margin: 3px 0 4px; font-size: 14px; }
+  .skill-detail-type { font-size: 7px; }
+  .skill-detail-effect { margin-bottom: 3px; font-size: 16px; }
+  .skill-detail-rule { font-size: 8px; line-height: 1.25; }
+  .skill-detail-change { margin-top: 5px; }
+  .skill-detail-change span { padding: 4px 2px; font-size: 7px; }
+  .skill-panel { width: min(810px, 97%); padding: 9px 12px; }
+  .skill-panel h2 { margin: 1px 0 2px; font-size: 21px; }
+  .skill-panel .upgrade-sub { margin-bottom: 6px !important; font-size: 9px; }
+  .skill-learn-grid { gap: 9px; margin-top: 6px; }
+  .skill-learn-card { min-height: 186px; padding: 9px; }
+  .skill-learn-icon { width: 38px; height: 38px; border-width: 2px; }
+  .skill-card-top { gap: 7px; padding-right: 25px; }
+  .skill-card-type { font-size: 7px; margin-bottom: 2px; }
+  .skill-card-top b { font-size: 13px; }
+  .skill-learn-card em { top: 8px; right: 8px; font-size: 8px; }
+  .skill-main-effect { margin: 8px 0 5px; font-size: 17px; }
+  .skill-learn-card > small { min-height: 27px; font-size: 8px; line-height: 1.25; }
+  .skill-value-change { margin-top: 5px; grid-template-columns: minmax(0, 1fr) 14px minmax(0, 1fr); gap: 3px; }
+  .skill-value-change span { padding: 4px 2px; font-size: 7px; }
+  .skill-value-change b { font-size: 12px; }
+  .skill-select-label { margin: 6px -9px -9px; padding: 5px; font-size: 9px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* 已确认的深圳启动封面：先完成加载，再开放进入线路。 */
+#startModal{padding:0;place-items:end center;background:#9adbe5 url("assets/portrait-sheet.png") center/cover no-repeat;backdrop-filter:none}
+#startModal::after{content:"";position:absolute;z-index:0;left:0;right:0;bottom:0;height:104px;background:rgba(7,20,46,.82);border-top:3px solid var(--ink)}
+#startModal .intro-panel{z-index:1;width:min(520px,54vw);max-width:none;margin:0 0 12px;padding:8px 14px;border:0;background:transparent;box-shadow:none;color:#fff}
+#startModal .cover-controls{display:grid;gap:7px;width:100%}
+#startModal .loading-copy{display:flex;justify-content:space-between;gap:18px;color:#fff7e8;font:900 14px/1.1 "Courier New",monospace;text-shadow:2px 2px 0 #07142e}
+#startModal .loading-track{height:18px;padding:3px;border:3px solid #07142e;background:#fff7e8;box-shadow:3px 3px 0 rgba(7,20,46,.75)}
+#startModal .loading-track i{display:block;width:0;height:100%;background:#123bee;transition:none}
+#startModal .loading-ready{color:#ffd166;font:900 12px/1 "Courier New",monospace;text-align:center}
+#startModal .primary-btn{width:100%;min-height:48px;background:#ff7822;color:#07142e;border-color:#fff;box-shadow:4px 5px 0 #07142e}
+#startModal .primary-btn[hidden],#loadingState[hidden]{display:none!important}
+@media(max-height:500px){#startModal::after{height:82px}#startModal .intro-panel{margin-bottom:7px;padding:5px 10px}#startModal .primary-btn{min-height:40px}.loading-track{height:14px!important}}
+
+/* 用户确认的“城市突围线路”正式流程页。背景保留原图，进度与任务由 DOM 动态覆盖。 */
+.route-modal{padding:0;background:#f5e7c8 url("assets/departure-scene-bg.png") center/cover no-repeat;backdrop-filter:none}
+.route-count{position:absolute;left:36.2%;top:2.8%;width:20%;height:9.5%;display:grid;place-items:center;box-sizing:border-box;padding:7px 12px;background:#fff1cf;color:#07142e;font:950 clamp(14px,1.8vw,26px)/1 "Courier New",monospace;text-align:center}
+.route-task{position:absolute;left:10.5%;bottom:7.5%;width:22.5%;height:7.2%;display:grid;align-content:center;padding:0 10px;background:rgba(255,241,207,.98);color:#d74c3d;font:950 clamp(12px,1.5vw,22px)/1.1 "Courier New",monospace;text-align:center}
+.route-node-status{position:absolute;top:45.5%;width:30px;height:30px;margin-left:-15px;display:grid;place-items:center;border:3px solid #07142e;background:#697383;color:#fff;border-radius:50%;font:950 18px/1 "Courier New",monospace;box-shadow:3px 3px 0 rgba(7,20,46,.7)}
+.route-node-status.completed{background:#2aa879}.route-node-status.active{background:#ff654f;outline:5px solid rgba(255,101,79,.35)}
+.route-node-status:nth-of-type(1){left:15.2%}.route-node-status:nth-of-type(2){left:28.2%}.route-node-status:nth-of-type(3){left:42.6%}.route-node-status:nth-of-type(4){left:56.6%}.route-node-status:nth-of-type(5){left:70.2%}
+.route-start-btn{position:absolute;right:3.8%;bottom:6.2%;width:36%;height:14%;min-width:0;min-height:0;border:4px solid #07142e;background:#123bee;color:#fff7e8;box-shadow:5px 6px 0 #07142e;font:950 clamp(22px,4vw,54px)/1 "Courier New",monospace;cursor:pointer}
+.route-start-btn:active{transform:translate(4px,5px);box-shadow:none}
+.route-start-btn:focus-visible{outline:5px solid #ffd166;outline-offset:3px}
+#qaCompleteBtn{display:none;position:absolute;z-index:80;right:12px;bottom:12px;padding:8px;border:2px solid #07142e;background:#ffd166;color:#07142e;font:800 11px "Courier New",monospace}.qa-mode #qaCompleteBtn{display:block}
+
+/* 过渡页纯图模式：隐藏所有 HUD / 技能面板 / 角色卡 / 连击 / toast，只留 canvas 画面 */
+#game-shell.cinematic .hud,
+#game-shell.cinematic .party,
+#game-shell.cinematic .skill-rack,
+#game-shell.cinematic .combo,
+#game-shell.cinematic .toast,
+#game-shell.cinematic #qaCompleteBtn{display:none!important}
+#game-shell.cinematic{cursor:pointer}
