@@ -4,6 +4,21 @@
 
 ---
 
+## 📸 五站预览
+
+<p align="center">
+  <img src="assets/stage-gaoxin.png" width="32%" alt="第 1 关 高新园" />
+  <img src="assets/stage-nantou.png" width="32%" alt="第 2 关 南头古城" />
+  <img src="assets/stage-qianhaiwan.png" width="32%" alt="第 3 关 前海湾" />
+</p>
+<p align="center">
+  <img src="assets/stage-qianhaishi.png" width="32%" alt="第 4 关 前海石公园" />
+  <img src="assets/stage-shenzhong.png" width="32%" alt="第 5 关 深中通道" />
+  <img src="assets/6666688888.png" width="32%" alt="城市突围线路图" />
+</p>
+
+---
+
 ## 🎮 怎么玩（选一种）
 
 ### 方式 A：双击启动（推荐，最省事）
@@ -111,7 +126,9 @@ taskkill /PID <PID> /F
     ├── stage-nantou.png           第 2 关 南头古城
     ├── stage-qianhaiwan.png       第 3 关 前海湾
     ├── stage-qianhaishi.png       第 4 关 前海石公园
-    └── stage-shenzhong.png        第 5 关 深中通道
+    ├── stage-shenzhong.png        第 5 关 深中通道
+    ├── stage-nantou666.png        南头古城过场插图
+    └── 6666688888.png             城市突围线路图
 ```
 
 ---
