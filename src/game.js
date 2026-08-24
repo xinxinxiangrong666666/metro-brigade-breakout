@@ -383,7 +383,7 @@ function showRoutePage() {
 }
 
 function startCurrentRoute() {
-  document.querySelector("#game-shell").style.visibility = "visible";
+  document.querySelector("#game-shell").classList.add("shell-live");
   if (routeProgress > 5) {
     ui.route.classList.remove("open");
     finish(true);
@@ -429,7 +429,7 @@ function newRun() {
 function showMetroMap() {
   const shell = document.querySelector("#game-shell");
   shell.classList.add("cinematic");
-  shell.style.visibility = "visible";
+  shell.classList.add("shell-live");
   mode = "metromap";
   draw();
 }
@@ -1860,13 +1860,13 @@ document.querySelector("#restartBtn").addEventListener("click", () => {
   journeyStarted = false;
   metroMapShown = false;
   document.querySelector("#game-shell").classList.remove("cinematic");
-  document.querySelector("#game-shell").style.visibility = "hidden";
+  document.querySelector("#game-shell").classList.remove("shell-live");
   showRoutePage();
 });
 
 document.querySelector("#againBtn").addEventListener("click", () => {
   ui.end.classList.remove("open");
-  document.querySelector("#game-shell").style.visibility = "hidden";
+  document.querySelector("#game-shell").classList.remove("shell-live");
   if (lastRunWon) {
     routeProgress = 1;
     journeyStarted = false;
@@ -1940,4 +1940,39 @@ const loadingTimer = window.setInterval(() => {
 
 renderSkillRack();
 updateHud();
+
+/* 移动端方向检测兜底：部分手机浏览器旋转后媒体查询不及时刷新，
+   这里用实测视口比例判定，直接给 body 打 force-landscape / force-portrait */
+function syncOrientation() {
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  const isTouch = window.matchMedia("(hover: none)").matches || "ontouchstart" in window;
+  const body = document.body;
+  // 桌面端不干预，交回原生媒体查询
+  if (!isTouch && w > 900) {
+    body.classList.remove("force-landscape", "force-portrait");
+    return;
+  }
+  if (w > h) {
+    body.classList.add("force-landscape");
+    body.classList.remove("force-portrait");
+  } else {
+    body.classList.add("force-portrait");
+    body.classList.remove("force-landscape");
+  }
+}
+
+syncOrientation();
+window.addEventListener("resize", syncOrientation);
+window.addEventListener("orientationchange", () => {
+  syncOrientation();
+  // 旋转动画结束后再校正一次，拿到稳定的视口尺寸
+  window.setTimeout(syncOrientation, 260);
+  window.setTimeout(syncOrientation, 620);
+});
+window.screen?.orientation?.addEventListener?.("change", () => {
+  syncOrientation();
+  window.setTimeout(syncOrientation, 260);
+});
+
 requestAnimationFrame(loop);

@@ -468,7 +468,7 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 
 @media (orientation: portrait) and (max-width: 900px) {
   #rotatePrompt { display: grid; }
-  #game-shell { visibility: hidden; }
+  #game-shell { visibility: hidden !important; }
 }
 
 @media (max-height: 500px) {
@@ -575,3 +575,17 @@ button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent
 #game-shell.cinematic .toast,
 #game-shell.cinematic #qaCompleteBtn{display:none!important}
 #game-shell.cinematic{cursor:pointer}
+
+/* shell-live：JS 标记游戏已启动。竖屏时被上面的 !important 规则压住，横屏才显示 */
+#game-shell.shell-live { visibility: visible; }
+/* JS 兜底：手机横屏后强制隐藏旋转提示、显示游戏（部分安卓浏览器媒体查询不及时刷新） */
+body.force-landscape #rotatePrompt { display: none !important; }
+body.force-landscape #game-shell.shell-live { visibility: visible !important; }
+/* JS 判定为竖屏时强制显示提示 */
+body.force-portrait #rotatePrompt { display: grid !important; }
+body.force-portrait #game-shell { visibility: hidden !important; }
+
+/* 移动端横屏：用 dvh 动态视口单位，避免地址栏收起/展开导致画面被裁 */
+@supports (height: 100dvh) {
+  #game-shell { width: min(100vw, 177.777dvh); height: min(100dvh, 56.25vw); }
+}
