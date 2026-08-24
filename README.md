@@ -1,12 +1,12 @@
 # 地铁旅团弹射：城市突围
-
+清程极智2026爱拼特种兵黑客松 游戏赛道冠军🏆 最想带走奖🥇
 手机横屏 H5 弹射 Roguelike。深圳地铁五站城市突围 —— 弹射清障 + 技能成长 + 景点明信片收集。
 
 ---
 
-## � 在线试玩（免安装）
+##  在线试玩（免安装）
 
-👉 **https://xinxinxiangrong666666.github.io/metro-brigade-breakout/**
+👉 **https://709ec52d02c64b8a8022b7c0fbe70521.app.workbuddy.link/**
 
 手机横屏打开即玩，不需要下载、不需要装 Python。想在本地跑源码见下方「怎么玩」。
 
